@@ -5,7 +5,7 @@ const bodyParser = require("body-parser");
 const { routerAbout, routerAdmin } = require("./routes");
 const { PORT, APP_MODE } = require("./utils");
 
-const sequelize = require("./utils/database");
+// const sequelize = require("./utils/database");
 
 //? cors initialise
 const cors = require("cors");
