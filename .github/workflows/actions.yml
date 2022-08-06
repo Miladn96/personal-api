@@ -21,7 +21,7 @@ jobs:
       run: |
         npm install
 
-    - name: 🧪 Test Utils
+    - name: 🧪 Unit Test
       run: npm run test
     
     - name: 📂 Sync files
