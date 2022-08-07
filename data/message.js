@@ -1,6 +1,6 @@
 const uuid = require("uuid");
 
-const { putNewMessage_message } = require("../messages");
+const { putNewMessage_message, deleteMessageSuccessful } = require("../messages");
 const { readDatabases, writeDatabases, createResponse } = require("../utils");
 const {
   DATABASES_NAME: { MESSAGE: DATABASE_NAME_MESSAGE },
@@ -44,8 +44,19 @@ const getMessageWithMessageUid = (messageUid, cb) => {
   })
 }
 
+const deleteMessageWithMessageUid = (messageUid, cb) => {
+  readDatabases(DATABASE_NAME_MESSAGE, (messages) => {
+    const theMessage = messages.find((message) => message.messageUid === messageUid)
+    const _messages = cloneDeep(messages.filter((message) => message.messageUid !== messageUid))
+    writeDatabases(DATABASE_NAME_MESSAGE, _messages, () => {
+      cb(createResponse(theMessage, deleteMessageSuccessful, false))
+    })
+  })
+}
+
 module.exports = {
   putNewMessage,
   getAllMessages,
   getMessageWithMessageUid,
+  deleteMessageWithMessageUid,
 };

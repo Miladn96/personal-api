@@ -1,7 +1,14 @@
 const express = require("express");
+const { cloneDeep } = require("lodash");
 const router = express.Router();
 
-const { createUser, getAllUsers, getUserByUid, getAllMessages } = require("../data");
+const {
+  createUser,
+  getAllUsers,
+  getUserByUid,
+  getAllMessages,
+  deleteMessageWithMessageUid,
+} = require("../data");
 const {
   getUser,
   getUsers,
@@ -75,10 +82,41 @@ router.get("/users/:uid", (req, res) => {
 
 //? get All Messages
 router.get("/messages", (req, res) => {
+  const pageNumber = req.query.pageNumber;
+  const perPage = req.query.perPage;
   getAllMessages((messages) => {
     if (messages) {
       res.status(200);
-      res.send(createResponse(messages, null, false));
+      switch (undefined) {
+        case pageNumber:
+        case perPage:
+          res.send(
+            createResponse(
+              { messages: messages, totalMessages: messages.length },
+              null,
+              false
+            )
+          );
+          break;
+
+        default:
+          res.send(
+            createResponse(
+              {
+                messages: cloneDeep(messages).filter(
+                  (message, index) =>
+                    perPage * (pageNumber - 1) <= index &&
+                    perPage * pageNumber > index
+                ),
+                page: pageNumber,
+                totalMessages: messages.length,
+              },
+              null,
+              false
+            )
+          );
+          break;
+      }
     } else {
       res.status(404);
       res.send(createResponse(undefined, `There is not messages!`, true));
@@ -96,6 +134,15 @@ router.get("/message/:messageUid", (req, res) => {
       res.status(500);
       res.send(createResponse(undefined, server_error, true));
     }
+  });
+});
+
+//? delete message by uid
+router.delete("/message/:messageUid", (req, res) => {
+  const { messageUid } = req.params;
+  deleteMessageWithMessageUid(messageUid, (response) => {
+    res.status(200);
+    res.send(response);
   });
 });
 
